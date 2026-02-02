@@ -1,0 +1,414 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>AHU Controller System</title>
+
+<style>
+body{
+  margin:0;
+  background:#2f3b52;
+  font-family:Segoe UI;
+}
+
+h1{
+  text-align:center;
+  color:#fff;
+  padding:12px;
+}
+
+.container{
+  display:flex;
+  gap:20px;
+  padding:20px;
+}
+
+/* LEFT PANEL */
+.panel{
+  width:55%;
+  background:#f4f6fb;
+  border-radius:16px;
+  padding:15px;
+}
+
+.tabs{
+  display:flex;
+  gap:8px;
+  margin-bottom:10px;
+}
+.tab{
+  padding:6px 14px;
+  border-radius:10px;
+  background:#ddd;
+  cursor:pointer;
+  text-align:center;
+  width:90px;
+}
+.tab.active{
+  background:#4a90e2;
+  color:#fff;
+}
+
+/* TAB TEXT */
+.tab .top{
+  font-weight:700;
+  font-size:14px;
+}
+.tab .bottom{
+  font-size:12px;
+  color:#555;
+}
+
+/* AHU BIG BOX */
+.ahu-box{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  border:2px solid #ccc;
+  border-radius:18px;
+  padding:20px;
+  margin-bottom:16px;
+  min-height:260px;
+  background:#fff;
+}
+
+/* PIPES */
+.pipe-section{
+  width:55%;
+}
+.pipe{
+  width:100%;
+  height:46px;
+  border-radius:24px;
+  margin-bottom:18px;
+  position:relative;
+  display:flex;
+  align-items:center;
+  padding-left:14px;
+  font-weight:600;
+}
+
+.pipe.cold{
+  background:#d6ecff;
+  border:2px solid #4a90e2;
+}
+.pipe.hot{
+  background:#ffe6c9;
+  border:2px solid #f39c12;
+}
+
+/* VALVE */
+.valve{
+  position:absolute;
+  left:50%;
+  top:50%;
+  transform:translate(-50%,-50%);
+  width:30px;
+  height:30px;
+  border-radius:50%;
+  border:3px solid #333;
+  background:#fff;
+}
+.blade{
+  position:absolute;
+  width:4px;
+  height:22px;
+  background:#333;
+  left:50%;
+  top:4px;
+  transform-origin:center;
+  transition:.4s;
+}
+
+/* ROOMS INSIDE AHU */
+.rooms-section{
+  width:35%;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  gap:10px;
+}
+.house{
+  width:110px;
+  height:110px;
+  background:#fff;
+  border:2px solid #555;
+  border-radius:8px;
+  position:relative;
+}
+.house:before{
+  content:'';
+  position:absolute;
+  top:-36px;
+  left:0;
+  right:0;
+  margin:auto;
+  border-left:55px solid transparent;
+  border-right:55px solid transparent;
+  border-bottom:36px solid #777;
+}
+.rooms{
+  display:grid;
+  grid-template-columns:repeat(2,1fr);
+  gap:8px;
+}
+.room{
+  background:#4a90e2;
+  color:#fff;
+  font-weight:600;
+  padding:6px 0;
+  border-radius:10px;
+  width:70px;
+  text-align:center;
+  font-size:14px;
+}
+
+/* TEMP */
+.temp{
+  text-align:center;
+  font-size:30px;
+  margin:12px 0;
+}
+.ctrl{
+  text-align:center;
+}
+.ctrl button{
+  width:55px;
+  height:55px;
+  border-radius:50%;
+  font-size:26px;
+  border:none;
+  cursor:pointer;
+  margin:0 10px;
+}
+
+/* MODES */
+.modes{
+  display:flex;
+  justify-content:center;
+  gap:14px;
+}
+.mode{
+  padding:8px 22px;
+  border-radius:20px;
+  border:2px solid #aaa;
+  cursor:pointer;
+}
+.mode.summer.active{
+  background:#4a90e2;
+  color:#fff;
+}
+.mode.winter.active{
+  background:#f39c12;
+  color:#fff;
+}
+
+/* RIGHT SIDE */
+.right{
+  width:45%;
+  display:grid;
+  grid-template-columns:repeat(2,1fr);
+  gap:15px;
+}
+.card{
+  background:#f4f6fb;
+  border-radius:14px;
+  padding:14px;
+  cursor:pointer;
+}
+.card.active{
+  outline:3px solid #4a90e2;
+}
+.card.blink{
+  animation:blink .4s alternate infinite;
+}
+@keyframes blink{
+  from{opacity:1}
+  to{opacity:.4}
+}
+</style>
+</head>
+
+<body>
+
+<h1>AHU CONTROLLER SYSTEM</h1>
+
+<div class="container">
+
+<!-- LEFT -->
+<div class="panel">
+
+  <!-- AHU + ROOM TABS -->
+  <div class="tabs" id="tabs"></div>
+
+  <div class="ahu-box">
+
+    <!-- LEFT : PIPES -->
+    <div class="pipe-section">
+      <div class="pipe cold">
+        COOL AIR
+        <div class="valve"><div id="coldBlade" class="blade"></div></div>
+      </div>
+
+      <div class="pipe hot">
+        HOT AIR
+        <div class="valve"><div id="hotBlade" class="blade"></div></div>
+      </div>
+    </div>
+
+    <!-- RIGHT : ROOMS -->
+    <div class="rooms-section">
+      <div class="house"></div>
+      <div class="rooms">
+        
+      </div>
+    </div>
+
+  </div>
+
+  <div class="temp">
+    SET: <span id="setTemp">22</span>°C |
+    CURRENT: <span id="curTemp">20</span>°C
+  </div>
+
+  <div class="ctrl">
+    <button onclick="changeTemp(-1)">−</button>
+    <button onclick="changeTemp(1)">+</button>
+  </div>
+
+  <div class="modes">
+    <div id="summerBtn" class="mode summer" onclick="setMode('SUMMER')">SUMMER</div>
+    <div id="winterBtn" class="mode winter" onclick="setMode('WINTER')">WINTER</div>
+  </div>
+
+</div>
+
+<!-- RIGHT -->
+<div class="right" id="cards"></div>
+
+</div>
+
+<script>
+const ahu=[
+ {id:1,set:22,current:20,hum:45,mode:"SUMMER"},
+ {id:2,set:23,current:22,hum:50,mode:"SUMMER"},
+ {id:3,set:26,current:25,hum:60,mode:"WINTER"},
+ {id:4,set:26,current:26,hum:35,mode:"WINTER"}
+];
+
+let active=0;
+
+/* LIMITS */
+function limits(mode){
+  return mode==="SUMMER"
+    ? {min:16,max:24}
+    : {min:24,max:30};
+}
+function clamp(v,min,max){
+  return Math.min(Math.max(v,min),max);
+}
+
+/* RENDER */
+function render(){
+  tabs.innerHTML="";
+  cards.innerHTML="";
+
+  ahu.forEach((a,i)=>{
+    tabs.innerHTML+=`
+      <div class="tab ${i===active?'active':''}"
+           onclick="selectAHU(${i})">
+        <div class="top">AHU ${a.id}</div>
+        <div class="bottom">Room ${a.id}</div>
+      </div>`;
+
+    cards.innerHTML+=`
+      <div class="card ${i===active?'active':''}"
+           id="card${i}"
+           onclick="selectAHU(${i})">
+        <b>AHU ${a.id}</b>
+        <p>Current: ${a.current}°C</p>
+        <p>Set: ${a.set}°C</p>
+        <p>Humidity: ${a.hum}%</p>
+      </div>`;
+  });
+
+  updateMain();
+}
+
+/* UPDATE MAIN */
+function updateMain(){
+  const a=ahu[active];
+  setTemp.innerText=a.set;
+  curTemp.innerText=a.current;
+
+  coldBlade.style.transform="rotate(0deg)";
+  hotBlade.style.transform="rotate(0deg)";
+  summerBtn.classList.remove("active");
+  winterBtn.classList.remove("active");
+
+  if(a.mode==="SUMMER"){
+    coldBlade.style.transform="rotate(90deg)";
+    summerBtn.classList.add("active");
+  }else{
+    hotBlade.style.transform="rotate(90deg)";
+    winterBtn.classList.add("active");
+  }
+}
+
+/* BLINK */
+function blink(){
+  const c=document.getElementById("card"+active);
+  c.classList.add("blink");
+  setTimeout(()=>c.classList.remove("blink"),600);
+}
+
+/* MOVE CURRENT TO SET */
+function moveCurrentToSet(index){
+  const a=ahu[index];
+  if(a._timer) clearInterval(a._timer);
+
+  a._timer=setInterval(()=>{
+    if(a.current<a.set) a.current+=0.5;
+    else if(a.current>a.set) a.current-=0.5;
+    else clearInterval(a._timer);
+
+    a.current=Math.round(a.current*10)/10;
+    render();
+  },1000);
+}
+
+/* TEMP CHANGE */
+function changeTemp(v){
+  const a=ahu[active];
+  const {min,max}=limits(a.mode);
+  const old=a.set;
+
+  a.set=clamp(a.set+v,min,max);
+  if(old!==a.set) moveCurrentToSet(active);
+
+  blink();
+  render();
+}
+
+/* MODE CHANGE */
+function setMode(m){
+  const a=ahu[active];
+  a.mode=m;
+  a.set=(m==="SUMMER")?22:26;
+
+  moveCurrentToSet(active);
+  blink();
+  render();
+}
+
+/* SELECT AHU */
+function selectAHU(i){
+  active=i;
+  render();
+}
+
+render();
+</script>
+
+</body>
+</html>
